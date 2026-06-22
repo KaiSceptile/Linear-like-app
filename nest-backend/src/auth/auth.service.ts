@@ -22,19 +22,20 @@ export class AuthService {
     return tokens;
   }
 
-  async login(data: ReadUserDTO) {
-    const user = await this.usersService.findByEmail(data.email);
+  async login( {email, password} ) {
+    console.log(email);
+    const user = await this.usersService.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Неверный email или пароль');
     }
 
-    const isPasswordValid = await bcrypt.compare(data.password, user.password); 
+    const isPasswordValid = await bcrypt.compare(password, user.password); 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Неверный email или пароль');
     }
 
-    const tokens = await this.getTokens(data.id, data.email);
-    await this.updateRtHash(data.id, tokens.refresh_token);
+    const tokens = await this.getTokens(user.id, email);
+    await this.updateRtHash(user.id, tokens.refresh_token);
 
     return tokens;
   }
@@ -53,7 +54,7 @@ export class AuthService {
       }),
     ]);
 
-    return { access_token: at, refresh_token: rt };
+    return { access_token: at, refresh_token: rt, success: true };
   }
 
   async updateRtHash(userId: string, rt: string) {

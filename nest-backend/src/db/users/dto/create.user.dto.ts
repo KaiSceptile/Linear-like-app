@@ -1,5 +1,5 @@
-import { IsDate, Length } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsDate, IsOptional, Length } from 'class-validator';
+import { Exclude, Type } from 'class-transformer';
 
 export class CreateUserDTO {
   @Length(9, 100)
@@ -11,7 +11,8 @@ export class CreateUserDTO {
   @Length(8, 100)
   password: string;
 
-  @Length(8, 256)
+  @IsOptional()
+  @Exclude()
   hashedRefreshToken: string | null;
 
   @IsDate()

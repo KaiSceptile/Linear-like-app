@@ -7,6 +7,7 @@ import { CreateUserDTO, ReadUserDTO } from 'src/db/users/dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @HttpCode(HttpStatus.OK)
   @Post('register')
   async register(@Body() dto: CreateUserDTO) {
     return this.authService.register(dto);
@@ -14,13 +15,13 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() dto: ReadUserDTO) {
-    return this.authService.login(dto);
+  async login(@Body() {email, password}) {
+    return this.authService.login({email, password});
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  async refresh(@Body() id: string, rt:string) {
+  async refresh(@Body() id: string, rt: string) {
     return this.authService.refreshTokens(id, rt);
   }
 
