@@ -3,7 +3,8 @@ import {
   Controller,
   Delete,
   Get,
-  NotImplementedException,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -27,7 +28,7 @@ export class UsersController {
     return this.service.getMany(query);
   }
 
-  @Get('userId')
+  @Get(':userId')
   getOne(@Param() { userId }: GetUserParams): Promise<ReadUserDTO> {
     return this.service.getOne(userId);
   }
@@ -48,6 +49,7 @@ export class UsersController {
       }
 
   @Delete('userId')
+  @HttpCode(HttpStatus.NO_CONTENT)
   delete(@Param() { userId }: GetUserParams): Promise<void> {
     return this.service.delete(userId);
   }

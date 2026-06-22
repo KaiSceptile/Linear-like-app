@@ -7,5 +7,7 @@ export class ReadUserDTO {
 
   password: string;
 
+  hashedRefreshToken: string | null;
+
   createdAt: Date;
 }

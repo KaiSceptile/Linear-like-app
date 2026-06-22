@@ -5,11 +5,14 @@ export class CreateUserDTO {
   @Length(9, 100)
   email: string;
 
-  @Length(9, 100)
+  @Length(2, 100)
   name: string;
 
-  @Length(9, 100)
+  @Length(8, 100)
   password: string;
+
+  @Length(8, 256)
+  hashedRefreshToken: string | null;
 
   @IsDate()
   @Type(() => Date)

@@ -16,4 +16,12 @@ export class ReadManyUsersQueryDTO {
   @IsInt()
   @Min(1)
   page: number = 1;
+
+  get take(): number {
+    return this.pageSize
+  }
+
+  get skip(): number {
+    return this.pageSize*(this.page-1)
+  }
 }

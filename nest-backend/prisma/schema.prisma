@@ -11,10 +11,14 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
-  name  String
-  password String
-  createdAt DateTime
+model Users {
+  id    String @db.Uuid @id @default(ulid())
+  email String @unique @db.VarChar(100)
+  name  String @db.VarChar(100)
+  password String @db.VarChar(100)
+  hashedRefreshToken String?
+  createdAt DateTime @map("created_at") @db.Timestamptz()
+
+
+  @@map("users")
 }
