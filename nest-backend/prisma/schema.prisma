@@ -11,14 +11,38 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role{
+  OWNER
+  ADMIN
+  MEMBER
+}
 model Users {
-  id    String @db.Uuid @id @default(ulid())
+  id    String @db.Uuid @id @default(uuid())
   email String @unique @db.VarChar(100)
   name  String @db.VarChar(100)
   password String @db.VarChar(100)
   hashedRefreshToken String? 
   createdAt DateTime @map("created_at") @db.Timestamptz()
-
+  workspaces WorkspaceMembers[]
 
   @@map("users")
+}
+
+model Workspaces{
+  id String @db.Uuid @id @default(uuid())
+  name String @db.VarChar(100)
+  users WorkspaceMembers[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMembers{
+  userId String @db.Uuid
+  workspaceId String @db.Uuid
+  role Role @default(MEMBER)
+  workspace Workspaces @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user Users @relation(fields: [userId], references: [id])
+
+  @@id([userId, workspaceId]) 
+  @@map("workspace_members")
 }
