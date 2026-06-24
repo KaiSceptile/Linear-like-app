@@ -11,13 +11,16 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  CreateWorkspaceMemberDTO,
   GetWorkspaceParams,
+  ReadWorkspaceMemberDTO,
 } from './dto';
 import { ReadWorkspaceDTO } from './dto';
 import { ReadManyWorkspacesQueryDTO } from './dto';
 import { ReadManyWorkspacesDTO } from './dto';
 import { WorkspacesService } from './workspaces.service';
 import { CreateWorkspaceDTO } from './dto';
+import { GetWorkspaceMemberParams } from './dto/get.workspaceMember.params';
 
 @Controller('workspaces')
 export class WorkspacesController {
@@ -39,6 +42,13 @@ export class WorkspacesController {
     return this.service.getOne(id);
   }
 
+  @Post()
+  @Put("/member/")
+  async createMember(@Body() data: CreateWorkspaceMemberDTO): Promise<ReadWorkspaceDTO> {
+    const id = await this.service.addMember(data);
+    return this.service.getOne(data.workspaceId);
+  }
+
   @Put()
   async update(
     @Param() { workspaceId }: GetWorkspaceParams,
@@ -48,9 +58,25 @@ export class WorkspacesController {
     return this.service.getOne(workspaceId);
       }
 
+      //поправить декоратор парам
+  @Put("/member/")
+  async updateMember(
+    @Param() { workspaceId }: GetWorkspaceParams,
+    @Body() data: CreateWorkspaceMemberDTO,
+  ): Promise<ReadWorkspaceDTO> {
+    await this.service.editMember(data);
+    return this.service.getOne(workspaceId);
+      }
+
   @Delete('workspaceId')
   @HttpCode(HttpStatus.NO_CONTENT)
   delete(@Param() { workspaceId }: GetWorkspaceParams): Promise<void> {
     return this.service.delete(workspaceId);
+  }
+
+  @Delete('/member/')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteMember(@Param() { workspaceId, userId }: GetWorkspaceMemberParams): Promise<void> {
+    return this.service.deleteMember(workspaceId, userId);
   }
 }

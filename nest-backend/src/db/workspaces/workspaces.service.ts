@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { randomUUID } from 'crypto';
 import { contain } from 'supertest/lib/cookies';
 import { Prisma } from '@prisma/client';
-import { ReadWorkspaceDTO } from './dto';
+import { CreateWorkspaceMemberDTO, ReadWorkspaceDTO, ReadWorkspaceMemberDTO } from './dto';
 import { CreateWorkspaceDTO } from './dto';
 import { ReadManyWorkspacesQueryDTO } from './dto';
 import { ReadManyWorkspacesDTO } from './dto';
@@ -20,7 +20,7 @@ export class WorkspacesService {
     const id: Prisma.WorkspacesWhereInput | undefined = query.search 
   ? { id: query.search } : undefined;
 
-  const count = await this.prisma.workspaces.count( {where: id})
+  //const count = await this.prisma.workspaces.count( {where: id})
     const data = await this.prisma.workspaces.findMany({
       //take: query.take,
       //skip: query.skip,
@@ -36,6 +36,12 @@ export class WorkspacesService {
             }
           },
     },
+    boards: {
+      select: {
+        id: true,
+        name: true
+      }
+    }
       }
     });
 
@@ -57,7 +63,12 @@ export class WorkspacesService {
               },
             }
           },
-    },
+    }, boards: {
+      select: {
+        id: true,
+        name: true
+      }
+    }
       }
     })
 
@@ -85,6 +96,33 @@ export class WorkspacesService {
   async delete(id: string): Promise<void> {
     await this.prisma.workspaces.delete({ where:{id:id}});
   }
+
+  async addMember(data: CreateWorkspaceMemberDTO): Promise<void> {
+    await this.prisma.workspaceMembers.create( {data: {
+      workspaceId: data.workspaceId,
+      userId: data.userId,
+      role: "MEMBER"
+    }} );
+  }
+
+  async deleteMember(workspaceId: string, userId: string): Promise<void> {
+    await this.prisma.workspaceMembers.delete({ where:{ userId_workspaceId: {userId:userId, workspaceId: workspaceId}}});
+  }
+
+  async editMember(data: CreateWorkspaceMemberDTO): Promise<void> {
+  await this.prisma.workspaceMembers.update({
+    where: {
+      userId_workspaceId: {
+        userId: data.userId,
+        workspaceId: data.workspaceId,
+      },
+    },
+    data: {
+      role: data.role, 
+    },
+  });
+}
+
 
   private async checkName(name:string, workspaceId?: string):Promise<boolean> {
     const id = workspaceId ? {not: workspaceId} : undefined;

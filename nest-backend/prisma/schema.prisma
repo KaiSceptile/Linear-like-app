@@ -16,6 +16,13 @@ enum Role{
   ADMIN
   MEMBER
 }
+
+enum Priority{
+  HIGH
+  MEDIUM
+  LOW
+}
+
 model Users {
   id    String @db.Uuid @id @default(uuid())
   email String @unique @db.VarChar(100)
@@ -24,6 +31,7 @@ model Users {
   hashedRefreshToken String? 
   createdAt DateTime @map("created_at") @db.Timestamptz()
   workspaces WorkspaceMembers[]
+  tasks Tasks[]
 
   @@map("users")
 }
@@ -32,7 +40,7 @@ model Workspaces{
   id String @db.Uuid @id @default(uuid())
   name String @db.VarChar(100)
   users WorkspaceMembers[]
-
+  boards Boards[]
   @@map("workspaces")
 }
 
@@ -45,4 +53,42 @@ model WorkspaceMembers{
 
   @@id([userId, workspaceId]) 
   @@map("workspace_members")
+}
+
+model Boards{
+  id String @db.Uuid @id @default(uuid())
+  name String @db.VarChar(100)
+  workspaceId String @db.Uuid
+  workspace Workspaces @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  columns Columns[]
+
+  @@map("boards")
+}
+
+model Columns{
+  id String @db.Uuid @id @default(uuid())
+  name String @db.VarChar(100)
+  status Int
+  boardId String @db.Uuid
+  boards Boards @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks Tasks[]
+
+  @@map("columns")
+}
+//status: состояние задачи, 0 - to do, 1 - in progress, 2 - done
+
+model Tasks{
+  id String @db.Uuid @id @default(uuid())
+  name String @db.VarChar(100)
+  description String @db.VarChar(1000)
+  priority Priority @default(MEDIUM)
+  position Int
+  createdAt DateTime @map("created_at") @db.Timestamptz()
+  createdById String @db.Uuid
+  columnId String @db.Uuid
+  
+  columns Columns @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  users Users @relation(fields: [createdById], references: [id])
+  
+  @@map("tasks")
 }
